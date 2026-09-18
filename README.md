@@ -25,6 +25,30 @@ java -jar build/libs/AllmusicStandaloneServer-1.0.0.jar
 - 数据与配置文件存放于 `allmusic_server/` 目录（`config.json`、`message.json`、`music.json`、`ban.json`、`cookie.json`、`hud.json` 等）
 - 玩家通过 AllMusic Client + AllMusicConnect 模组执行 `/music connect <ip> <端口>` 接入
 
+## 音乐 API（netapi）配置
+
+服务端通过「音乐 API」实现歌曲搜索与播放，`netapi` 为默认的音乐 API 实现：
+
+1. 将 `netapi-*.jar`（如 `netapi-1.0.1-SNAPSHOT.jar`）放入 `allmusic_server/api/` 目录
+2. 启动服务端，日志出现「注册音乐API：\<id\>」即加载成功
+3. API 的运行时配置存放于 `allmusic_server/netapi.json`：
+
+```json
+{
+  "level": "exhigh",
+  "encodeType": "aac"
+}
+```
+
+| 配置项 | 说明 |
+| --- | --- |
+| `level` | 音质等级（如 `exhigh`） |
+| `encodeType` | 音频编码格式（如 `aac`） |
+
+- API jar 内需包含 `version` 文件（内容为字符 `2`），否则会被判定为旧版 API 跳过加载
+- 使用 `/music api <API名> [参数]` 调用 API 的扩展命令（如查看 / 设置 Cookie）
+- 修改配置或更换 API jar 后需重启服务端生效
+
 ## 构建
 
 ```bash
