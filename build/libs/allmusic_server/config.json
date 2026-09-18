@@ -1,0 +1,55 @@
+{
+  "lyricDelay": 0,
+  "defaultAddMusic": 0,
+  "ktvLyricDelay": 0,
+  "adminList": [
+    "color_yr"
+  ],
+  "playListSwitch": true,
+  "playListRandom": true,
+  "playListEscapeDeep": 40,
+  "sendLyric": true,
+  "needPermission": false,
+  "topAPI": false,
+  "mutePlayMessage": false,
+  "muteAddMessage": false,
+  "showInBar": false,
+  "ktvMode": true,
+  "version": "402",
+  "economy": {
+    "backend": "server1",
+    "vault": true
+  },
+  "funConfig": {
+    "rain": true,
+    "rainRate": 10
+  },
+  "limit": {
+    "messageLimit": false,
+    "messageLimitSize": 20,
+    "listLimit": false,
+    "listLimitSize": 10,
+    "infoLimit": false,
+    "infoLimitSize": 20,
+    "musicTimeLimit": false,
+    "maxMusicTime": 600,
+    "limitText": "...",
+    "maxPlayList": 10,
+    "maxPlayerList": 10
+  },
+  "cost": {
+    "searchCost": 20,
+    "addMusicCost": 10,
+    "useCost": false
+  },
+  "vote": {
+    "minVote": 3,
+    "voteTime": 30,
+    "voteListSize": 10
+  },
+  "defaultApi": "netapi",
+  "sendDelay": 1000,
+  "joinDelay": 1000,
+  "lyricReplace": {},
+  "fixSongTime": 0
+}

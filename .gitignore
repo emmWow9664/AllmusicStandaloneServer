@@ -1,0 +1,7 @@
+﻿.gradle/
+build/tmp/
+**/cookie.json
+**/latest.log
+.idea/
+*.iml
+

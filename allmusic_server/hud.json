@@ -1,0 +1,45 @@
+{
+  "lyric": {
+    "color": 16777215,
+    "gap": 10,
+    "shadow": true,
+    "maxWidth": 300,
+    "x": 74,
+    "y": 53,
+    "pos": "TOP_LEFT",
+    "alpha": 1.0,
+    "enable": true
+  },
+  "info": {
+    "color": 16777215,
+    "shadow": true,
+    "maxWidth": 300,
+    "gap": 10,
+    "loop": true,
+    "x": 74,
+    "y": 2,
+    "pos": "TOP_LEFT",
+    "alpha": 1.0,
+    "enable": true
+  },
+  "state": {
+    "color": 16777215,
+    "shadow": true,
+    "gap": 5,
+    "x": 74,
+    "y": 43,
+    "pos": "TOP_LEFT",
+    "alpha": 1.0,
+    "enable": true
+  },
+  "pic": {
+    "size": 70,
+    "rotate": true,
+    "speed": 30,
+    "x": 2,
+    "y": 2,
+    "pos": "TOP_LEFT",
+    "alpha": 1.0,
+    "enable": true
+  }
+}
