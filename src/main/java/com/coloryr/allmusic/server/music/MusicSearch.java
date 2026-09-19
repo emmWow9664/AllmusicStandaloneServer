@@ -7,9 +7,9 @@ import com.coloryr.allmusic.server.core.objs.message.ARG;
 import com.coloryr.allmusic.server.core.objs.music.PlayerAddMusicObj;
 import com.coloryr.allmusic.server.core.objs.music.SearchPageObj;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MusicSearch {
@@ -18,7 +18,7 @@ public class MusicSearch {
      * 搜歌结果
      * 玩家名 结果
      */
-    private static final Map<String, SearchPageObj> searchSave = new HashMap<>();
+    private static final Map<String, SearchPageObj> searchSave = new ConcurrentHashMap<>();
 
     private static final Queue<PlayerAddMusicObj> tasks = new ConcurrentLinkedQueue<>();
 
@@ -79,6 +79,10 @@ public class MusicSearch {
         }
         for (int a = 0; a < index; a++) {
             item = search.getRes(a + search.getPage() * 10);
+            // 翻页/搜索失效导致越界时结果可能为空，跳过避免空指针
+            if (item == null) {
+                continue;
+            }
             info = AllMusic.getMessage().page.choice;
             info = info.replace(ARG.index, "" + (a + 1))
                     .replace(ARG.musicName, item.name)
