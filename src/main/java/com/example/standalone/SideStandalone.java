@@ -146,7 +146,7 @@ public class SideStandalone extends BaseSide {
 
     @Override
     public File getFolder() {
-        return new File(AllMusic.SERVER_DIR);
+        return new File(Main.getBaseDir(), AllMusic.SERVER_DIR);
     }
 
     @Override

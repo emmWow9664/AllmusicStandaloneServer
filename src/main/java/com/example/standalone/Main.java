@@ -21,6 +21,7 @@ import java.util.Optional;
 public class Main {
     private static volatile MainFrame frame;
     private static volatile StandaloneConfig standaloneConfig;
+    private static volatile File baseDir;
 
     public static Optional<MainFrame> getFrame() {
         return Optional.ofNullable(frame);
@@ -30,6 +31,25 @@ public class Main {
         return standaloneConfig;
     }
 
+    /**
+     * 服务端所在文件夹（jar 所在目录）。
+     * <p>
+     * 所有数据目录（allmusic_server/ 等）都基于此路径创建/读取，
+     * 保证无论从哪个工作目录启动 `java -jar ...`，文件始终位于 jar 旁边。
+     */
+    public static File getBaseDir() {
+        if (baseDir == null) {
+            try {
+                String path = Main.class.getProtectionDomain()
+                        .getCodeSource().getLocation().toURI().getPath();
+                baseDir = new File(path).getParentFile();
+            } catch (Exception e) {
+                baseDir = new File(".");
+            }
+        }
+        return baseDir;
+    }
+
     public static void main(String[] args) {
         // 初始化核心
         AllMusic.log = LogStandalone.INSTANCE;
@@ -37,8 +57,9 @@ public class Main {
 
         standaloneConfig = StandaloneConfig.load();
 
-        // 初始化 AllMusic 核心（读取 config.json / message.json / cookie.json / api）
-        AllMusic.init(new File(AllMusic.SERVER_DIR));
+        // 初始化 AllMusic 核心（读取 config.json / message.json / cookie.json / api），
+        // 数据目录固定在服务端所在文件夹下，与启动时的工作目录无关
+        AllMusic.init(new File(getBaseDir(), AllMusic.SERVER_DIR));
         AllMusic.start();
 
         // 启动 TCP 服务端

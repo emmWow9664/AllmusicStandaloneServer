@@ -24,17 +24,22 @@ public class StandaloneConfig {
      */
     public String bindHost = "0.0.0.0";
 
-    public static final File CONFIG_FILE = new File("standalone_config.json");
+    /**
+     * 独立服务端配置文件（位于服务端所在文件夹）
+     */
+    public static File getConfigFile() {
+        return new File(Main.getBaseDir(), "standalone_config.json");
+    }
 
     public static StandaloneConfig load() {
         StandaloneConfig config = new StandaloneConfig();
-        if (!CONFIG_FILE.exists()) {
+        if (!getConfigFile().exists()) {
             config.save();
             return config;
         }
         try {
             InputStreamReader reader = new InputStreamReader(
-                    Files.newInputStream(CONFIG_FILE.toPath()), StandardCharsets.UTF_8);
+                    Files.newInputStream(getConfigFile().toPath()), StandardCharsets.UTF_8);
             BufferedReader bf = new BufferedReader(reader);
             StandaloneConfig loaded = new Gson().fromJson(bf, StandaloneConfig.class);
             bf.close();
@@ -51,7 +56,7 @@ public class StandaloneConfig {
     public void save() {
         try {
             String data = new GsonBuilder().setPrettyPrinting().create().toJson(this);
-            FileOutputStream out = new FileOutputStream(CONFIG_FILE);
+            FileOutputStream out = new FileOutputStream(getConfigFile());
             OutputStreamWriter write = new OutputStreamWriter(out, StandardCharsets.UTF_8);
             write.write(data);
             write.close();
