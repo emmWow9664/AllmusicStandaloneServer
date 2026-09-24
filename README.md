@@ -13,16 +13,26 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 
 ## 运行要求
 
-- Java 21+
+- **Java 25+**（推荐）
+- 服务端本体兼容 Java 21，但常用的 `netapi` 音乐 API 是 Java 25 编译的（class 版本 69），
+  用 Java 21 启动会在加载 API 时报 `UnsupportedClassVersionError`，服务端随后退出（原因写入 `allmusic_server/crash.log`）
+- 如果必须在 Java 21 下运行，请改用按 Java 21 编译的 API jar
+- 双击启动使用的是系统对 `.jar` 的文件关联，请确保该关联指向期望的 JDK（如 `Zulu 25\bin\javaw.exe`）
 
 ## 使用
 
+**方式一（推荐）：直接双击 jar 运行** —— 无需终端，双击 `AllmusicStandaloneServer-<版本>.jar` 即可启动图形界面。
+若双击无效，说明系统未把 `.jar` 关联到 Java，可用方式二，或右键 jar →「打开方式」选择 `javaw.exe`。
+
+**方式二：命令行运行**
+
 ```bash
-java -jar build/libs/AllmusicStandaloneServer-1.0.0.jar
+java -jar build/libs/AllmusicStandaloneServer-1.0.11.jar
 ```
 
 - 服务端默认监听 `0.0.0.0:5223`，可在 `standalone_config.json` 中修改 `port` / `bindHost`
-- 数据与配置文件存放于 `allmusic_server/` 目录（`config.json`、`message.json`、`music.json`、`ban.json`、`cookie.json`、`hud.json` 等）
+- 数据与配置文件存放于 jar 同级的 `allmusic_server/` 目录（`config.json`、`message.json`、`music.json`、`ban.json`、`cookie.json`、`hud.json` 等），与启动时的工作目录无关
+- 启动失败时会弹窗提示，并写入 `allmusic_server/crash.log`
 - 玩家通过 AllMusic Client + AllMusicConnect 模组执行 `/music connect <ip> <端口>` 接入
 
 ## 音乐 API（netapi）配置
@@ -57,8 +67,13 @@ gradlew build
 
 产物（ShadowJar，已重定位 httpclient 依赖以兼容官方音乐 API jar）：
 
-- `build/libs/AllmusicStandaloneServer-1.0.0.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`）
-- `build/libs/netapi-*.jar` —— 音乐 API 接口实现
+- `build/libs/AllmusicStandaloneServer-1.0.11.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
+- `releases/AllmusicStandaloneServer-<版本>.jar` —— 各版本产物归档
+
+> 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；
+> 构建时会自动归档一份到 `releases/`（位于 `build/` 之外，不会被清理），请以 `releases/` 作为长期保留的产物目录。
+
+音乐 API（`netapi-*.jar`）需自行放入 `allmusic_server/api/`，详见下方配置说明。
 
 ## 说明
 

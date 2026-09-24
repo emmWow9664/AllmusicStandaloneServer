@@ -41,6 +41,12 @@ public class ClientSession {
     private final DataOutputStream out;
     private volatile String name;
     private volatile boolean closed;
+    /** 连接建立时间（用于在线时长统计） */
+    private final long connectTime = System.currentTimeMillis();
+
+    public long getConnectTime() {
+        return connectTime;
+    }
 
     public ClientSession(Socket socket) throws IOException {
         this.socket = socket;

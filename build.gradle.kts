@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0.2"
+version = "1.0.11"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -33,6 +33,9 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.26.1")
     implementation("net.kyori:adventure-text-serializer-gson:$adventureVersion")
     implementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
+
+    // 现代化 GUI（明暗主题），本地 jar 依赖
+    implementation(files("libs/flatlaf-3.5.4.jar"))
 }
 
 tasks.withType<JavaCompile> {
@@ -48,6 +51,17 @@ tasks.withType<ShadowJar> {
         attributes["Main-Class"] = "com.example.standalone.Main"
         attributes["Implementation-Title"] = "Allmusic Standalone Server"
         attributes["Implementation-Version"] = project.version
+    }
+    // Gradle 7.6+ 会清理 build/ 下"陈旧的任务输出"，导致历史版本 jar 被删除。
+    // 因此额外归档一份到项目根目录的 releases/（不在 build/ 内，不会被清理），保证新旧版本都保留。
+    doLast {
+        val built = archiveFile.get().asFile
+        val keepDir = layout.projectDirectory.dir("releases").asFile
+        keepDir.mkdirs()
+        val kept = File(keepDir, built.name)
+        if (!kept.exists() || kept.length() != built.length()) {
+            built.copyTo(kept, overwrite = true)
+        }
     }
 }
 

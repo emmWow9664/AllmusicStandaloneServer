@@ -1,7 +1,11 @@
-﻿.gradle/
+.gradle/
 build/tmp/
 **/cookie.json
 **/latest.log
 .idea/
 *.iml
+
+# 服务端运行时数据（jar 位于 build/libs 时会在其旁边生成）
+build/libs/allmusic_server/
+build/libs/stats.json
 
