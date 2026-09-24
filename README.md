@@ -39,9 +39,10 @@ java -jar build/libs/AllmusicStandaloneServer-1.0.11.jar
 
 服务端通过「音乐 API」实现歌曲搜索与播放，`netapi` 为默认的音乐 API 实现：
 
-1. 将 `netapi-*.jar`（如 `netapi-1.0.1-SNAPSHOT.jar`）放入 `allmusic_server/api/` 目录
-2. 启动服务端，日志出现「注册音乐API：\<id\>」即加载成功
-3. API 的运行时配置存放于 `allmusic_server/netapi.json`：
+1. 下载 `netapi-1.0.1-SNAPSHOT.jar`（见 [Releases](https://github.com/emmWow9664/AllmusicStandaloneServer/releases/latest) 中的资产，与服务器 jar 在同一页面）
+2. 将 `netapi-*.jar` 放入服务端 jar 同级的 `allmusic_server/api/` 目录（首次启动会自动创建该目录）
+3. 启动服务端，日志出现「注册音乐API：\<id\>」即加载成功
+4. API 的运行时配置存放于 `allmusic_server/netapi.json`：
 
 ```json
 {
@@ -73,7 +74,7 @@ gradlew build
 > 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；
 > 构建时会自动归档一份到 `releases/`（位于 `build/` 之外，不会被清理），请以 `releases/` 作为长期保留的产物目录。
 
-音乐 API（`netapi-*.jar`）需自行放入 `allmusic_server/api/`，详见下方配置说明。
+音乐 API（`netapi-*.jar`）可从 [Releases](https://github.com/emmWow9664/AllmusicStandaloneServer/releases/latest) 下载，放入 `allmusic_server/api/` 即可，详见下方配置说明。
 
 ## 说明
 
