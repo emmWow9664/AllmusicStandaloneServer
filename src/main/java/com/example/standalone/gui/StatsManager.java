@@ -58,7 +58,11 @@ public final class StatsManager {
 
     private static final List<SongRecord> songs = Collections.synchronizedList(new ArrayList<>());
     private static final Map<String, PlayerRecord> players = Collections.synchronizedMap(new LinkedHashMap<>());
+    /** 今日已连接的玩家（小写名），跨天自动清零 */
+    private static final java.util.Set<String> todayPlayers = Collections.synchronizedSet(new java.util.LinkedHashSet<>());
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    /** 今日日期（ISO，如 2026-09-25） */
+    private static volatile String todayDate = today();
 
     private StatsManager() {
     }
@@ -93,14 +97,43 @@ public final class StatsManager {
         p.songCount++;
     }
 
-    /** 记录玩家首次连接（保留原始大小写显示） */
+    /** 记录玩家连接（保留原始大小写显示），并计入今日连接名单 */
     public static void recordPlayer(String player) {
         if (player == null) {
             return;
         }
+        ensureToday();
         String key = player.toLowerCase();
         synchronized (players) {
             players.computeIfAbsent(key, k -> new PlayerRecord(player, System.currentTimeMillis()));
+        }
+        todayPlayers.add(key);
+    }
+
+    /** 今日连接过的玩家数量 */
+    public static int getTodayPlayerCount() {
+        ensureToday();
+        return todayPlayers.size();
+    }
+
+    /** 今日连接过的玩家名（小写） */
+    public static List<String> getTodayPlayers() {
+        ensureToday();
+        synchronized (todayPlayers) {
+            return new ArrayList<>(todayPlayers);
+        }
+    }
+
+    private static String today() {
+        return java.time.LocalDate.now().toString();
+    }
+
+    /** 跨天则清空今日名单 */
+    private static void ensureToday() {
+        String now = today();
+        if (!now.equals(todayDate)) {
+            todayDate = now;
+            todayPlayers.clear();
         }
     }
 
@@ -156,6 +189,8 @@ public final class StatsManager {
             Store store = new Store();
             store.songs = s;
             store.players = p;
+            store.todayDate = todayDate;
+            store.todayPlayers = getTodayPlayers();
             Files.write(statsFile(), GSON.toJson(store).getBytes(StandardCharsets.UTF_8));
         } catch (Exception ignored) {
         }
@@ -187,6 +222,11 @@ public final class StatsManager {
                     }
                 }
             }
+            // 同一天重启时恢复今日连接名单，跨天则丢弃
+            if (today().equals(store.todayDate) && store.todayPlayers != null) {
+                todayPlayers.clear();
+                todayPlayers.addAll(store.todayPlayers);
+            }
         } catch (Exception ignored) {
         }
     }
@@ -195,5 +235,7 @@ public final class StatsManager {
     private static class Store {
         List<SongRecord> songs;
         List<PlayerRecord> players;
+        String todayDate;
+        List<String> todayPlayers;
     }
 }

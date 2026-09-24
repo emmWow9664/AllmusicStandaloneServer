@@ -52,6 +52,8 @@ public class DashboardPanel extends JPanel {
     // 玩家模块
     private final DefaultListModel<PlayerRow> playerModel = new DefaultListModel<>();
     private final JList<PlayerRow> playerList = new JList<>(playerModel);
+    /** 玩家卡片标题：附带展示今日连接人数 */
+    private final JLabel playerCardTitle = new JLabel("👤 在线玩家");
 
     // 性能模块（圆环）
     private final RingChart cpuRing = new RingChart(new Color(0x00B0FF));
@@ -109,7 +111,8 @@ public class DashboardPanel extends JPanel {
         g.gridwidth = 1;
         g.weighty = 1.6;
         g.weightx = 0.8;
-        add(card("👤 在线玩家", buildPlayerPanel()), g);
+        playerCardTitle.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        add(card(playerCardTitle, buildPlayerPanel()), g);
 
         // 刷新
         new Timer(500, e -> refresh()).start();
@@ -117,15 +120,23 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel card(String title, Component content) {
+        return card(cardTitle(title), content);
+    }
+
+    private JPanel card(JLabel title, Component content) {
         JPanel p = new JPanel(new BorderLayout(6, 6));
-        JLabel t = new JLabel(title);
-        t.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-        p.add(t, BorderLayout.NORTH);
+        p.add(title, BorderLayout.NORTH);
         p.add(content, BorderLayout.CENTER);
         p.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0, 0, 0, 40)),
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)));
         return p;
+    }
+
+    private JLabel cardTitle(String text) {
+        JLabel t = new JLabel(text);
+        t.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        return t;
     }
 
     private JPanel buildSongPanel() {
@@ -369,6 +380,7 @@ public class DashboardPanel extends JPanel {
             prows.add(new PlayerRow(c.getName(), nowMs - c.getConnectTime()));
         }
         syncPlayers(prows);
+        playerCardTitle.setText("👤 在线玩家 · 今日连接 " + StatsManager.getTodayPlayerCount() + " 人");
 
         // 性能
         refreshPerf();

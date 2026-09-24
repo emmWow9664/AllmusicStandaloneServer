@@ -43,6 +43,8 @@ public class SideStandalone extends BaseSide {
      */
     public void register(ClientSession session) {
         clients.put(session.getName().toLowerCase(Locale.ROOT), session);
+        // 记录连接事件（含"今日连接玩家"统计），无图形界面时同样生效
+        com.example.standalone.gui.StatsManager.recordPlayer(session.getName());
     }
 
     /**

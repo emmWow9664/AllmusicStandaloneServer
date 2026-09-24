@@ -80,6 +80,13 @@ public class LogStandalone implements IAllMusicLogger {
         }
     }
 
+    /**
+     * 注销日志监听
+     */
+    public void removeListener(Consumer<String> listener) {
+        listeners.remove(listener);
+    }
+
     @Override
     public void data(String data) {
         append(data);

@@ -6,7 +6,8 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 ## 功能
 
 - 完整的 AllMusic 服务端功能：点歌、切歌、搜索、歌单、投票、静音、封禁、HUD 控制等
-- 图形界面（GUI）：玩家列表、歌曲列表、日志、指令输入框、可视化配置编辑
+- 图形界面（GUI）：玩家列表、歌曲列表、日志、指令输入框、可视化配置编辑、性能监视、点歌统计
+- 内嵌 Web 面板：浏览器查看播放 / 队列 / 玩家（含今日连接人数）/ 统计 / 性能，管理员可登录管理
 - 无图形环境时以控制台模式运行
 - 音乐 API 热加载（`netapi` jar，如 `netapi-1.0.1-SNAPSHOT.jar`）
 - 歌曲与歌词保存、点赞置顶（TopLyric）、经济 / 点歌花费扩展接口
@@ -27,7 +28,7 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 **方式二：命令行运行**
 
 ```bash
-java -jar build/libs/AllmusicStandaloneServer-1.0.11.jar
+java -jar build/libs/AllmusicStandaloneServer-1.0.14.jar
 ```
 
 - 服务端默认监听 `0.0.0.0:5223`，可在 `standalone_config.json` 中修改 `port` / `bindHost`
@@ -60,6 +61,21 @@ java -jar build/libs/AllmusicStandaloneServer-1.0.11.jar
 - 使用 `/music api <API名> [参数]` 调用 API 的扩展命令（如查看 / 设置 Cookie）
 - 修改配置或更换 API jar 后需重启服务端生效
 
+## 内嵌 Web 面板
+
+服务端自带一个零依赖的内嵌 Web 展示与管理面板，浏览器打开即可使用。
+
+- 默认地址：`http://127.0.0.1:8080/`（默认绑定 `0.0.0.0`，局域网内可用本机 IP 访问）
+- 端口、绑定地址、是否启用：在 GUI「设置 → 独立服务端」中修改，**改动需重启服务端**
+- **普通用户无需登录，只能查看**：当前播放、歌曲队列、在线玩家（含**今日连接人数**）、点歌统计、**性能监视**（CPU / 内存 / 网络，可展开查看各核心使用率）
+- **管理员**需先在「设置」页设置管理员密码（只保存 PBKDF2 加盐哈希，不保存明文），登录后可以：
+  切歌、移除队列项、封禁/解封歌曲与玩家、执行服务端指令、查看服务端日志
+- 出于安全考虑，Web 面板**不允许执行 `/music stop`**（会直接关闭整个服务端）
+- 同一 IP 连续输错 5 次密码将锁定 5 分钟；登录凭证 12 小时绝对过期、闲置 30 分钟失效
+
+> ⚠️ 面板默认绑定所有网卡，相当于把管理页面暴露在网络上，安全性完全依赖密码强度。
+> 请设置足够复杂的密码；公网使用建议只放行必要端口，并置于反向代理（如 nginx）之后。
+
 ## 构建
 
 ```bash
@@ -68,7 +84,7 @@ gradlew build
 
 产物（ShadowJar，已重定位 httpclient 依赖以兼容官方音乐 API jar）：
 
-- `build/libs/AllmusicStandaloneServer-1.0.11.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
+- `build/libs/AllmusicStandaloneServer-1.0.14.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
 - `releases/AllmusicStandaloneServer-<版本>.jar` —— 各版本产物归档
 
 > 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；

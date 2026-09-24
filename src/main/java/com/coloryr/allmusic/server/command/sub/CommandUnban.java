@@ -14,14 +14,18 @@ public class CommandUnban extends ACommand {
         }
 
         String musicID = null;
+        // 原始输入（封禁时存入的就是它，解封必须用同一个值，否则删不掉）
+        String rawId = null;
         IMusicApi api = null;
 
         if (args.length == 2) {
             api = AllMusic.MUSIC_APIS.get(AllMusic.getConfig().defaultApi);
             musicID = args[1];
+            rawId = args[1];
         } else if (args.length == 3) {
             api = AllMusic.MUSIC_APIS.get(args[1]);
             musicID = args[2];
+            rawId = args[2];
         } else {
             AllMusic.side.sendMessage(sender, "<light_purple>[AllMusic]<dark_green>错误的指令");
         }
@@ -35,7 +39,7 @@ public class CommandUnban extends ACommand {
 
         if (api.checkId(musicID)) {
             api.setList(musicID, sender);
-            BanSave.removeBanMusic(args[1], api.getId());
+            BanSave.removeBanMusic(rawId, api.getId());
             AllMusic.side.sendMessage(sender, "<light_purple>[AllMusic]<dark_green>音乐API " + api.getId() + "已解封点歌" + musicID);
         } else {
             AllMusic.side.sendMessage(sender, "<light_purple>[AllMusic]<dark_green>请输入有效的ID");

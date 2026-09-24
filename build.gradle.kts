@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0.11"
+version = "1.0.14"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21

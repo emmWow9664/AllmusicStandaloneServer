@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AllMusic 服务端面板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="brand">
+        <span class="note">♪</span>
+        <h1>AllMusic 服务端</h1>
+        <span id="version" class="tag"></span>
+    </div>
+    <div class="meta">
+        <span id="api" class="tag"></span>
+        <span id="online" class="tag">在线 0</span>
+        <button id="adminToggle" class="btn" type="button">管理员登录</button>
+    </div>
+</header>
+
+<main>
+    <section class="card span2">
+        <h2>当前播放</h2>
+        <div class="now">
+            <img id="cover" alt="封面" hidden>
+            <div class="nowinfo">
+                <div id="songName" class="title">没有正在播放的歌曲</div>
+                <div id="songMeta" class="sub"></div>
+                <div class="bar">
+                    <div id="progress" class="barfill"></div>
+                </div>
+                <div id="times" class="sub">0:00 / 0:00</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>在线玩家 <span id="playerCount" class="muted"></span><span id="todayCount" class="tag"></span></h2>
+        <ul id="playerList" class="list"></ul>
+    </section>
+
+    <section class="card span2">
+        <h2>性能监视</h2>
+        <div class="perf">
+            <div class="meter">
+                <div class="meterhead"><span>CPU</span><span id="cpuVal" class="muted">--</span></div>
+                <div class="bar">
+                    <div id="cpuBar" class="barfill"></div>
+                </div>
+                <div id="cpuModel" class="sub"></div>
+            </div>
+            <div class="meter">
+                <div class="meterhead"><span>内存</span><span id="ramVal" class="muted">--</span></div>
+                <div class="bar">
+                    <div id="ramBar" class="barfill green"></div>
+                </div>
+                <div id="ramModel" class="sub"></div>
+            </div>
+            <div class="meter">
+                <div class="meterhead"><span>网络</span><span id="netVal" class="muted">--</span></div>
+                <div class="bar">
+                    <div id="netBar" class="barfill amber"></div>
+                </div>
+                <div id="netHint" class="sub">↓ 0 KB/s　↑ 0 KB/s</div>
+            </div>
+        </div>
+        <details class="cores">
+            <summary>各核心使用率</summary>
+            <div id="coreGrid" class="coregrid"></div>
+        </details>
+    </section>
+
+    <section class="card span2">
+        <h2>歌曲队列 <span id="queueCount" class="muted"></span></h2>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>歌名</th>
+                    <th>歌手</th>
+                    <th>点歌者</th>
+                    <th>时长</th>
+                    <th class="adminOnly" hidden>操作</th>
+                </tr>
+                </thead>
+                <tbody id="queueBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>热门歌曲</h2>
+        <ol id="topList" class="list"></ol>
+    </section>
+
+    <section class="card span2">
+        <h2>玩家统计</h2>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>玩家</th>
+                    <th>点歌次数</th>
+                    <th>累计连接</th>
+                </tr>
+                </thead>
+                <tbody id="statBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card span2" id="adminPanel" hidden>
+        <h2>管理员</h2>
+        <div id="loginBox" class="row">
+            <label for="pwd">管理员密码</label>
+            <input id="pwd" type="password" autocomplete="current-password" placeholder="请输入管理员密码">
+            <button id="loginBtn" class="btn primary" type="button">登录</button>
+            <span id="loginMsg" class="msg"></span>
+        </div>
+        <div id="adminBox" hidden>
+            <div class="row">
+                <button id="nextBtn" class="btn" type="button">切歌</button>
+                <button id="refreshBtn" class="btn" type="button">刷新数据</button>
+                <button id="logoutBtn" class="btn" type="button">退出登录</button>
+                <span id="actionMsg" class="msg"></span>
+            </div>
+            <div class="row">
+                <input id="cmd" type="text" placeholder="服务端指令，例如 next / list / ban 123456" maxlength="200">
+                <button id="cmdBtn" class="btn primary" type="button">执行</button>
+            </div>
+            <h3>服务端日志</h3>
+            <pre id="logs" class="logs"></pre>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <span class="muted">AllMusic 独立服务端 · Web 面板</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -23,6 +23,18 @@ public class StandaloneConfig {
      * 绑定地址
      */
     public String bindHost = "0.0.0.0";
+    /**
+     * 是否启用内嵌 Web 展示与管理面板
+     */
+    public boolean webEnabled = true;
+    /**
+     * Web 面板监听端口
+     */
+    public int webPort = 8080;
+    /**
+     * Web 面板绑定地址（0.0.0.0 表示所有网卡）
+     */
+    public String webBindHost = "0.0.0.0";
 
     /**
      * 独立服务端配置文件（位于服务端所在文件夹）
@@ -46,6 +58,13 @@ public class StandaloneConfig {
             reader.close();
             if (loaded != null && loaded.port > 0 && loaded.port < 65536) {
                 config = loaded;
+            }
+            // 兼容旧配置文件：Web 相关字段缺失或非法时回退默认值
+            if (config.webPort <= 0 || config.webPort > 65535) {
+                config.webPort = 8080;
+            }
+            if (config.webBindHost == null || config.webBindHost.isEmpty()) {
+                config.webBindHost = "0.0.0.0";
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import com.coloryr.allmusic.server.core.AllMusic;
 import com.example.standalone.gui.MainFrame;
 import com.example.standalone.gui.ThemeManager;
 import com.example.standalone.gui.TrayManager;
+import com.example.standalone.web.WebServer;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -110,6 +111,9 @@ public class Main {
         AllMusic.init(new File(getBaseDir(), AllMusic.SERVER_DIR));
         AllMusic.start();
 
+        // 恢复统计（点歌/玩家/今日连接名单）：必须放在图形界面判断之前，无图形界面时同样生效
+        com.example.standalone.gui.StatsManager.load();
+
         // 启动 TCP 服务端
         try {
             MusicServer.INSTANCE.start(standaloneConfig.bindHost, standaloneConfig.port);
@@ -117,8 +121,20 @@ public class Main {
             AllMusic.log.data("<light_purple>[AllMusic]<red>端口监听失败：" + e.getMessage());
         }
 
+        // 启动内嵌 Web 面板（失败不影响其它功能）
+        if (standaloneConfig.webEnabled) {
+            try {
+                WebServer.INSTANCE.start(standaloneConfig.webBindHost, standaloneConfig.webPort,
+                        new File(getBaseDir(), AllMusic.SERVER_DIR));
+            } catch (Exception e) {
+                AllMusic.log.data("<light_purple>[AllMusic]<red>Web 面板启动失败（端口 "
+                        + standaloneConfig.webPort + " 可能已被占用）：" + e.getMessage());
+            }
+        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             com.example.standalone.gui.StatsManager.save(); // 退出时保存统计
+            WebServer.INSTANCE.stop();                       // 先释放 Web 端口
             AllMusic.stop();
             MusicServer.INSTANCE.stop();
             SideStandalone.INSTANCE.shutdown();
@@ -130,7 +146,6 @@ public class Main {
             return;
         }
         SwingUtilities.invokeLater(() -> {
-            com.example.standalone.gui.StatsManager.load(); // 启动时恢复统计
             ThemeManager.init();
             frame = new MainFrame();
             frame.setVisible(true);

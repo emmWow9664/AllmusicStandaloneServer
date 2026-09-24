@@ -7,8 +7,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class BanSave {
@@ -73,7 +75,10 @@ public class BanSave {
             if (ids == null) {
                 ids = new ArrayList<>();
             }
-            ids.add(music);
+            // 去重：重复封禁同一首歌会产生多条记录，导致解封后仍被判为封禁
+            if (!ids.contains(music)) {
+                ids.add(music);
+            }
             ban.banMusics.put(api, ids);
             saveBan();
         });
@@ -83,10 +88,13 @@ public class BanSave {
         SaveTask.task(() -> {
             List<String> ids = ban.banMusics.get(api);
             if (ids == null) {
-                ids = new ArrayList<>();
+                return;
             }
-            ids.remove(id);
-            ban.banMusics.put(api, ids);
+            // 用 removeAll 清掉所有重复项：只删一条时 contains 仍为 true，解封会看起来无效
+            ids.removeIf(id::equals);
+            if (ids.isEmpty()) {
+                ban.banMusics.remove(api);
+            }
             saveBan();
         });
     }
@@ -189,5 +197,28 @@ public class BanSave {
 
     public static Set<String> getBanPlayers() {
         return ban.banPlayers;
+    }
+
+    /**
+     * 音乐封禁快照（API 名 → 歌曲 ID 列表），供 Web 面板等只读展示使用。
+     * <p>
+     * 写入方在 SaveTask 线程上直接修改原 Map，这里做防御性拷贝并捕获并发修改异常。
+     */
+    public static Map<String, List<String>> snapshotBanMusics() {
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        Map<String, List<String>> src = ban == null ? null : ban.banMusics;
+        if (src == null) {
+            return result;
+        }
+        try {
+            synchronized (src) {
+                for (Map.Entry<String, List<String>> entry : src.entrySet()) {
+                    List<String> ids = entry.getValue();
+                    result.put(entry.getKey(), ids == null ? new ArrayList<>() : new ArrayList<>(ids));
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return result;
     }
 }

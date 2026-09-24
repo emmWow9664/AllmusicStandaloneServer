@@ -1,4 +1,7 @@
 {
   "port": 5223,
-  "bindHost": "0.0.0.0"
+  "bindHost": "0.0.0.0",
+  "webEnabled": true,
+  "webPort": 8080,
+  "webBindHost": "0.0.0.0"
 }
