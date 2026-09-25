@@ -397,7 +397,11 @@ public class AllMusic {
                     AllMusic.side.sendHudPos(player1);
                     AllMusic.side.sendMusic(player1, PlayMusic.url);
                     AllMusic.side.sendPic(player1, music.getPicUrl());
-                    AllMusic.side.runTask(() -> AllMusic.side.sendPos(player1, (int) PlayMusic.musicNowTime), 20);
+                    // 延迟 500 毫秒再发送播放进度：客户端收到 PLAY 后需要一点时间创建播放任务，
+                    // 而 AllMusic 客户端的 setTime() 在播放任务尚未建立时会直接丢弃该进度，
+                    // 导致中途加入的客户端从头播放而不是从服务端当前进度续播。
+                    // （本项目的 runTask(run, delay) 延迟单位是毫秒）
+                    AllMusic.side.runTask(() -> AllMusic.side.sendPos(player1, (int) PlayMusic.musicNowTime), 500);
                 }
             });
         });
