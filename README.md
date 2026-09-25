@@ -28,14 +28,40 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 **方式二：命令行运行**
 
 ```bash
-java -jar build/libs/AllmusicStandaloneServer-1.2.jar
+java -jar build/libs/AllmusicStandaloneServer-1.3.jar
 ```
 
 - 服务端默认监听 `0.0.0.0:5223`，可在 `standalone_config.json` 中修改 `port` / `bindHost`
 - 数据与配置文件存放于 jar 同级的 `allmusic_server/` 目录（`config.json`、`message.json`、`music.json`、`ban.json`、`cookie.json`、`hud.json` 等），与启动时的工作目录无关
 - 启动失败时会弹窗提示，并写入 `allmusic_server/crash.log`
-- 玩家通过 AllMusic Client + AllMusicConnect 模组执行 `/music connect <ip> [端口]` 接入（端口默认 `5223`）
+- 玩家通过 AllMusic Client + AllmusicConnect 模组执行 `/music connect <ip> [端口]` 接入（端口默认 `5223`）
 - 客户端异常掉线（断网 / 断电 / 路由器回收连接）时不会一直挂在在线列表：连接启用 TCP 保活探测（空闲 20 秒起、每 5 秒一次、连续 3 次无响应即判定掉线并注销会话）
+
+## 控制台模式（无图形环境）
+
+没有图形环境时（Linux 服务器、SSH、`-Djava.awt.headless=true`）服务端自动进入控制台模式，
+直接在终端里输入指令（回车执行）：
+
+```text
+list                                  # AllMusic 指令直接输入，以控制台身份执行（拥有管理员权限）
+play 起风了                            # 点歌 / 搜索 / 封禁等全部 AllMusic 指令都可用
+server help                           # 查看服务端自身指令
+server status                         # 运行状态：监听端口、在线玩家、Web 面板、密码状态、数据目录
+server config list [关键字]            # 列出全部配置项（可按关键字过滤）
+server config get <配置项>             # 查看配置项当前值
+server config set <配置项> <值>        # 修改并保存配置（端口 / 绑定地址 / Web 面板立即生效，无需重启）
+server password <新密码>               # 设置 Web 管理员密码（至少 4 位，只保存 PBKDF2 哈希）
+server password clear                 # 清除 Web 管理员密码
+server stop                           # 关闭服务端（也可直接输入 exit / quit，或按 Ctrl+C）
+```
+
+- 配置项可用「路径」或「原名」指定，例如
+  `server config set standalone.port 5223`、`server config set port 5223`、
+  `server config set limit.maxPlayList 5`、`server config set maxPlayList 5`；
+  可配置项与 GUI「设置」页完全一致（核心配置 → `allmusic_server/config.json`，独立服务端配置 → `standalone_config.json`）。
+- `config set` 会就地校验：端口范围 1~65535、整数项必须是整数、布尔项支持 `true/false`（`on/off`、`1/0` 亦可）。
+- 输入 `help` 会同时列出服务端指令与 AllMusic 指令。
+- 双击运行（`javaw`）时没有标准输入，控制台指令不可用——那种情况请用图形界面；SSH 下用 `java -jar` 启动即可。
 
 ## 音乐 API（netapi）配置
 
@@ -85,7 +111,7 @@ gradlew build
 
 产物（ShadowJar，已重定位 httpclient 依赖以兼容官方音乐 API jar）：
 
-- `build/libs/AllmusicStandaloneServer-1.2.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
+- `build/libs/AllmusicStandaloneServer-1.3.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
 - `releases/AllmusicStandaloneServer-<版本>.jar` —— 各版本产物归档
 
 > 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；

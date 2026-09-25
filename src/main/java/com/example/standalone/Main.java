@@ -143,6 +143,8 @@ public class Main {
         // 图形界面
         if (GraphicsEnvironment.isHeadless()) {
             LogStandalone.INSTANCE.append("<light_purple>[AllMusic]<red>无图形环境，仅以控制台模式运行");
+            // 控制台模式：读取终端指令（server ... 为本服务端指令，其它按 AllMusic 指令执行）
+            ConsoleInput.start();
             return;
         }
         SwingUtilities.invokeLater(() -> {
