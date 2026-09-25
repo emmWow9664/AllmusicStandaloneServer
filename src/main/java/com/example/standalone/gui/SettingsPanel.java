@@ -108,7 +108,7 @@ public class SettingsPanel extends JPanel {
 
         addGroup("关于");
         listPanel.add(info("AllmusicStandaloneServer", "AllMusic 独立音乐服务器（Standalone Server）"));
-        listPanel.add(info("版本", "1.3"));
+        listPanel.add(info("版本", com.example.standalone.Main.getVersion()));
         listPanel.add(info("作者", "emmWow9664、DeepseekV4Flash"));
         listPanel.add(info("协议", "GPL-3.0（AllMusic 的衍生作品）"));
         listPanel.add(info("仓库", "https://github.com/emmWow9664/AllmusicStandaloneServer"));

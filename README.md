@@ -47,6 +47,9 @@ list                                  # AllMusic 指令直接输入，以控制�
 play 起风了                            # 点歌 / 搜索 / 封禁等全部 AllMusic 指令都可用
 server help                           # 查看服务端自身指令
 server status                         # 运行状态：监听端口、在线玩家、Web 面板、密码状态、数据目录
+server about                          # 关于信息：版本、作者、协议、项目仓库、运行环境、运行时长
+server stats [页码]                    # 统计：概览 + 玩家点歌排行（分页，每页 10 条）
+server stats songs [页码]              # 统计：点歌历史（分页）
 server config list [关键字]            # 列出全部配置项（可按关键字过滤）
 server config get <配置项>             # 查看配置项当前值
 server config set <配置项> <值>        # 修改并保存配置（端口 / 绑定地址 / Web 面板立即生效，无需重启）
@@ -61,6 +64,7 @@ server stop                           # 关闭服务端（也可直接输入 exi
   可配置项与 GUI「设置」页完全一致（核心配置 → `allmusic_server/config.json`，独立服务端配置 → `standalone_config.json`）。
 - `config set` 会就地校验：端口范围 1~65535、整数项必须是整数、布尔项支持 `true/false`（`on/off`、`1/0` 亦可）。
 - 输入 `help` 会同时列出服务端指令与 AllMusic 指令。
+- `server stats` 的数据与 GUI「统计」页一致（点歌历史最多保留 500 条）；页码越界会自动落到最后一页。
 - 双击运行（`javaw`）时没有标准输入，控制台指令不可用——那种情况请用图形界面；SSH 下用 `java -jar` 启动即可。
 
 ## 音乐 API（netapi）配置

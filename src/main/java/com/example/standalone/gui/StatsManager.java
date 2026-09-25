@@ -1,6 +1,9 @@
 package com.example.standalone.gui;
 
+import com.coloryr.allmusic.server.core.music.PlayMusic;
+import com.example.standalone.ClientSession;
 import com.example.standalone.Main;
+import com.example.standalone.SideStandalone;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -63,8 +66,72 @@ public final class StatsManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     /** 今日日期（ISO，如 2026-09-25） */
     private static volatile String todayDate = today();
+    /** 点歌去重：记录上次已入库的歌曲 id，仅当歌曲变化时记录一次 */
+    private static volatile String lastRecordedSong = null;
+    /** 统计线程是否已启动（防止重复启动） */
+    private static volatile boolean tickerStarted = false;
 
     private StatsManager() {
+    }
+
+    /**
+     * 启动每秒统计线程（守护线程，GUI / 控制台模式都会运行）。
+     * <p>
+     * 每秒记录新点歌（按歌曲 id 去重）与在线玩家的连接时长累计，
+     * 使控制台模式下统计同样有效。
+     */
+    public static void startTicker() {
+        if (tickerStarted) {
+            return;
+        }
+        tickerStarted = true;
+        Thread thread = new Thread(StatsManager::tickLoop, "amc-stats");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private static void tickLoop() {
+        long lastTick = System.currentTimeMillis();
+        boolean logged = false;
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            try {
+                long nowMs = System.currentTimeMillis();
+                long delta = nowMs - lastTick;
+                lastTick = nowMs;
+
+                // 新点歌：仅当当前歌曲变化时记录一次，避免重复计数
+                var now = PlayMusic.nowPlayMusic;
+                if (now == null || now.getId() == null) {
+                    lastRecordedSong = null;
+                } else if (!now.getId().equals(lastRecordedSong)) {
+                    recordSong(now.getName(), now.getCall(), now.getId());
+                    lastRecordedSong = now.getId();
+                }
+
+                // 在线玩家：记录首次连接 + 累计本次 tick 的真实间隔
+                for (ClientSession c : SideStandalone.INSTANCE.getClientSessions()) {
+                    recordPlayer(c.getName());
+                    addConnectTime(c.getName(), delta);
+                }
+            } catch (Throwable t) {
+                // 任何异常都不能让统计线程退出，仅打印一次日志
+                if (!logged) {
+                    logged = true;
+                    try {
+                        if (com.coloryr.allmusic.server.core.AllMusic.log != null) {
+                            com.coloryr.allmusic.server.core.AllMusic.log
+                                    .data("<light_purple>[AllMusic]<red>统计线程发生错误：" + t);
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        }
     }
 
     static {
@@ -137,7 +204,7 @@ public final class StatsManager {
         }
     }
 
-    /** 累计在线时长（由界面刷新周期调用） */
+    /** 累计在线时长（由每秒统计线程调用） */
     public static void addConnectTime(String player, long deltaMs) {
         if (player == null || deltaMs <= 0) {
             return;

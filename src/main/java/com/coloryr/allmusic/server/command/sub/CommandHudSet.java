@@ -86,6 +86,8 @@ public class CommandHudSet extends AHudCommand {
             ICommand command = commandList.get(args[2]);
             if (command != null) {
                 command.execute(sender, name, args);
+                // 配置修改后立即向在线玩家重发一次 HUD_DATA（控制台/非玩家自动跳过）
+                resendHud(sender);
             } else {
                 AllMusic.side.sendMessage(sender, AllMusic.getMessage().command.error);
             }

@@ -44,6 +44,16 @@ public class Main {
     }
 
     /**
+     * 服务端版本号：取自 jar 清单里的 Implementation-Version（由构建脚本写入），
+     * 非 jar 方式运行时回退为 dev
+     */
+    public static String getVersion() {
+        Package pkg = Main.class.getPackage();
+        String version = pkg == null ? null : pkg.getImplementationVersion();
+        return version == null || version.isEmpty() ? "dev" : version;
+    }
+
+    /**
      * 服务端所在文件夹（jar 所在目录）。
      * <p>
      * 所有数据目录（allmusic_server/ 等）都基于此路径创建/读取，
@@ -113,6 +123,8 @@ public class Main {
 
         // 恢复统计（点歌/玩家/今日连接名单）：必须放在图形界面判断之前，无图形界面时同样生效
         com.example.standalone.gui.StatsManager.load();
+        // 启动每秒统计线程：同样放在图形界面判断之前，控制台模式与 GUI 模式都会启动（内部有防重复标志）
+        com.example.standalone.gui.StatsManager.startTicker();
 
         // 启动 TCP 服务端
         try {

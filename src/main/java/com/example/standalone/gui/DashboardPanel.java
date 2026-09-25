@@ -62,7 +62,6 @@ public class DashboardPanel extends JPanel {
     private long lastRx = -1;
     private long lastTx = -1;
     private long lastNetTime = 0;
-    private long lastTick = 0;
 
     // 交互状态：悬停/按下的行与操作列
     private int hoverRow = -1;
@@ -70,9 +69,6 @@ public class DashboardPanel extends JPanel {
     private int pressRow = -1;
     private int pressCol = -1;
     private boolean hoverOnQueue = true;
-
-    // 点歌历史去重：仅当当前歌曲变化时才记录，避免按刷新周期重复计数
-    private String lastRecordedSong = null;
 
     private static final Color BTN_RED = new Color(0xE53935);
     private static final Color BTN_GREEN = new Color(0x43A047);
@@ -347,17 +343,11 @@ public class DashboardPanel extends JPanel {
                 progress.setValue(0);
             }
             timeLabel.setText(fmt(cur) + " / " + fmt(all));
-            // 仅当歌曲变化时记录一次点歌历史（避免按刷新周期重复计数）
-            if (!now.getId().equals(lastRecordedSong)) {
-                StatsManager.recordSong(now.getName(), now.getCall(), now.getId());
-                lastRecordedSong = now.getId();
-            }
         } else {
             songName.setText("没有正在播放的歌曲");
             songCall.setText(" ");
             progress.setValue(0);
             timeLabel.setText("0:00 / 0:00");
-            lastRecordedSong = null;
         }
 
         // 队列
@@ -370,13 +360,9 @@ public class DashboardPanel extends JPanel {
 
         // 玩家
         long nowMs = System.currentTimeMillis();
-        long delta = lastTick == 0 ? 0 : nowMs - lastTick;
-        lastTick = nowMs;
         java.util.Collection<ClientSession> sessions = SideStandalone.INSTANCE.getClientSessions();
         List<PlayerRow> prows = new java.util.ArrayList<>();
         for (ClientSession c : sessions) {
-            StatsManager.recordPlayer(c.getName()); // 记录首次连接（保留大小写）
-            StatsManager.addConnectTime(c.getName(), delta); // 累计连接时长
             prows.add(new PlayerRow(c.getName(), nowMs - c.getConnectTime()));
         }
         syncPlayers(prows);
