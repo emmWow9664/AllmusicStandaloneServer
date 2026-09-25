@@ -222,10 +222,17 @@ public class ClientSession {
             if (closed) {
                 return;
             }
-            out.writeByte(kind);
-            out.writeInt(data.length);
-            out.write(data);
-            out.flush();
+            try {
+                out.writeByte(kind);
+                out.writeInt(data.length);
+                out.write(data);
+                out.flush();
+            } catch (IOException e) {
+                // 内核已判定连接不可用（对端掉线、保活探测失败等）：立刻注销会话，
+                // 否则会话会一直留在在线列表里
+                close();
+                throw e;
+            }
         }
     }
 

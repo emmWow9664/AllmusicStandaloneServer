@@ -28,13 +28,14 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 **方式二：命令行运行**
 
 ```bash
-java -jar build/libs/AllmusicStandaloneServer-1.1.jar
+java -jar build/libs/AllmusicStandaloneServer-1.2.jar
 ```
 
 - 服务端默认监听 `0.0.0.0:5223`，可在 `standalone_config.json` 中修改 `port` / `bindHost`
 - 数据与配置文件存放于 jar 同级的 `allmusic_server/` 目录（`config.json`、`message.json`、`music.json`、`ban.json`、`cookie.json`、`hud.json` 等），与启动时的工作目录无关
 - 启动失败时会弹窗提示，并写入 `allmusic_server/crash.log`
 - 玩家通过 AllMusic Client + AllMusicConnect 模组执行 `/music connect <ip> [端口]` 接入（端口默认 `5223`）
+- 客户端异常掉线（断网 / 断电 / 路由器回收连接）时不会一直挂在在线列表：连接启用 TCP 保活探测（空闲 20 秒起、每 5 秒一次、连续 3 次无响应即判定掉线并注销会话）
 
 ## 音乐 API（netapi）配置
 
@@ -84,7 +85,7 @@ gradlew build
 
 产物（ShadowJar，已重定位 httpclient 依赖以兼容官方音乐 API jar）：
 
-- `build/libs/AllmusicStandaloneServer-1.1.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
+- `build/libs/AllmusicStandaloneServer-1.2.jar` —— 独立服务端主程序（Main-Class: `com.example.standalone.Main`，可直接双击运行）
 - `releases/AllmusicStandaloneServer-<版本>.jar` —— 各版本产物归档
 
 > 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；
