@@ -69,28 +69,32 @@ server stop                           # 关闭服务端（也可直接输入 exi
 
 ## 音乐 API（netapi）配置
 
-服务端通过「音乐 API」实现歌曲搜索与播放，`netapi` 为默认的音乐 API 实现：
+服务端通过「音乐 API」实现歌曲搜索与播放，`netapi` 是最常用的音乐 API 实现。
 
-1. 下载 `netapi-1.0.1-SNAPSHOT.jar`（见 [Releases](https://github.com/emmWow9664/AllmusicStandaloneServer/releases/latest) 中的资产，与服务器 jar 在同一页面）
+> 本项目**不再随 Release 分发** netapi（各版本的 Release 里已不再提供该资产），请自行从官方仓库获取：
+>
+> - netapi 官方仓库：<https://github.com/Coloryr/netapi>
+
+1. 从上面仓库获取（或自行构建）`netapi-1.0.1-SNAPSHOT.jar`
 2. 将 `netapi-*.jar` 放入服务端 jar 同级的 `allmusic_server/api/` 目录（首次启动会自动创建该目录）
-3. 启动服务端，日志出现「注册音乐API：\<id\>」即加载成功
-4. API 的运行时配置存放于 `allmusic_server/netapi.json`：
+3. **重启服务端**，日志出现「注册音乐API：\<id\>」即加载成功
+4. API 首次运行后会在其 jar 同目录生成 `netapi.json`，可在此调整音质与编码：
 
 ```json
 {
   "level": "exhigh",
-  "encodeType": "aac"
+  "encodeType": "mp3"
 }
 ```
 
 | 配置项 | 说明 |
 | --- | --- |
-| `level` | 音质等级（如 `exhigh`） |
-| `encodeType` | 音频编码格式（如 `aac`） |
+| `level` | 音质档位（如 `standard` / `higher` / `exhigh` / `lossless`，具体以 netapi 文档为准）；`exhigh` + `mp3` 通常即 320k MP3 |
+| `encodeType` | 音频编码格式：`mp3` / `aac` / `flac`。注意 `aac` 会返回 `.m4a`(AAC) 文件，AllMusic 客户端 **3.x**（如 3.1.6）只有 flac/ogg/mp3 解码器，会提示「不支持这样的文件播放」且无声，**建议填 `mp3`**；4.x 客户端额外支持 m4a |
 
+- 修改 `netapi.json` 或更换 API jar 后需**重启服务端**生效
 - API jar 内需包含 `version` 文件（内容为字符 `2`），否则会被判定为旧版 API 跳过加载
 - 使用 `/music api <API名> [参数]` 调用 API 的扩展命令（如查看 / 设置 Cookie）
-- 修改配置或更换 API jar 后需重启服务端生效
 
 ## 内嵌 Web 面板
 
@@ -121,7 +125,7 @@ gradlew build
 > 注意：Gradle 7.6+ 会清理 `build/` 目录下的"陈旧任务输出"，历史版本 jar 放在 `build/libs` 里会被删掉；
 > 构建时会自动归档一份到 `releases/`（位于 `build/` 之外，不会被清理），请以 `releases/` 作为长期保留的产物目录。
 
-音乐 API（`netapi-*.jar`）可从 [Releases](https://github.com/emmWow9664/AllmusicStandaloneServer/releases/latest) 下载，放入 `allmusic_server/api/` 即可，详见下方配置说明。
+音乐 API（`netapi-*.jar`）本项目不再随 Release 分发，请从官方仓库 [Coloryr/netapi](https://github.com/Coloryr/netapi) 获取，放入 `allmusic_server/api/` 即可，详见上方「音乐 API（netapi）配置」。
 
 ## 说明
 
