@@ -50,6 +50,22 @@ public class LyricSave {
         return now.tlyric;
     }
 
+    /**
+     * 全部歌词行（键为歌曲时间毫秒），供 Web 面板取当前行前后各一句
+     */
+    public Map<Long, LyricItemObj> getLyricMap() {
+        return lyric;
+    }
+
+    /**
+     * 当前歌词行的时间键
+     *
+     * @return 还没有当前行时返回 -1
+     */
+    public long getNowKey() {
+        return now == null ? -1 : now.start;
+    }
+
     public boolean ktvGetNext(long time) {
         if (klyric == null)
             return false;

@@ -1,16 +1,19 @@
 package com.example.standalone.web;
 
 import com.coloryr.allmusic.server.core.AllMusic;
+import com.coloryr.allmusic.server.core.music.LyricSave;
 import com.coloryr.allmusic.server.core.music.PlayMusic;
+import com.coloryr.allmusic.server.core.objs.music.LyricItemObj;
 import com.coloryr.allmusic.server.core.objs.music.SongInfoObj;
 import com.coloryr.allmusic.server.core.saves.BanSave;
 import com.example.standalone.ClientSession;
+import com.example.standalone.ConfigCatalog;
 import com.example.standalone.LogStandalone;
 import com.example.standalone.Main;
 import com.example.standalone.SideStandalone;
-import com.example.standalone.gui.PerfReader;
-import com.example.standalone.gui.StatsManager;
-import com.example.standalone.gui.SysInfo;
+import com.example.standalone.monitor.PerfReader;
+import com.example.standalone.monitor.StatsManager;
+import com.example.standalone.monitor.SysInfo;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -58,6 +61,8 @@ final class WebApi {
             song.put("id", text(now.getId()));
             song.put("name", text(now.getName()));
             song.put("author", text(now.getAuthor()));
+            song.put("album", text(now.getAl()));
+            song.put("alia", text(now.getAlia()));
             song.put("player", text(now.getCall()));
             song.put("picUrl", text(now.getPicUrl()));
             song.put("length", now.getLength());
@@ -213,6 +218,78 @@ final class WebApi {
             }
             result.put("cores", list);
         }
+        return result;
+    }
+
+    /**
+     * 当前歌词：上一句 / 当前 / 下一句（供仪表盘做滚动歌词）
+     * <p>
+     * 取的是服务端已经解析好的歌词表（{@link LyricSave}），按当前行的时间键在有序键表里取前后各一句，
+     * 因此和客户端 HUD 上显示的歌词是同一份数据。
+     */
+    static Map<String, Object> lyric() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        SongInfoObj song = PlayMusic.nowPlayMusic;
+        boolean playing = song != null && !song.isNull();
+        result.put("playing", playing);
+
+        String prev = "";
+        String cur = "";
+        String next = "";
+        String tlyric = "";
+        LyricSave save = PlayMusic.lyric;
+        LyricItemObj now = save == null ? null : save.getNow();
+        if (now != null) {
+            cur = text(now.lyric);
+            tlyric = text(now.tlyric);
+            Map<Long, LyricItemObj> map = save.getLyricMap();
+            if (map != null && !map.isEmpty()) {
+                List<Long> keys = new ArrayList<>(map.keySet());
+                keys.sort(Long::compareTo);
+                int index = keys.indexOf(save.getNowKey());
+                if (index > 0) {
+                    prev = text(map.get(keys.get(index - 1)).lyric);
+                }
+                if (index >= 0 && index < keys.size() - 1) {
+                    next = text(map.get(keys.get(index + 1)).lyric);
+                }
+            }
+        }
+        result.put("prev", prev);
+        result.put("cur", cur);
+        result.put("next", next);
+        result.put("tlyric", tlyric);
+        result.put("nowTime", PlayMusic.musicNowTime);
+        return result;
+    }
+
+    /**
+     * 全部可配置项（分组 + 当前值），供 Web 设置页读取
+     */
+    static Map<String, Object> config() {
+        List<Map<String, Object>> groups = new ArrayList<>();
+        for (ConfigCatalog.Group group : ConfigCatalog.groups()) {
+            Map<String, Object> groupData = new LinkedHashMap<>();
+            groupData.put("title", group.title);
+            List<Map<String, Object>> items = new ArrayList<>();
+            for (ConfigCatalog.Item entry : group.items) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("path", entry.path);
+                item.put("cn", entry.cn);
+                item.put("en", entry.en);
+                item.put("desc", entry.desc);
+                item.put("type", entry.type);
+                Object value = ConfigCatalog.read(entry.path);
+                item.put("value", value == null ? "" : String.valueOf(value));
+                // 独立服务端自身的配置（端口、绑定地址、Web 开关等）改动后需重启进程才生效
+                item.put("restart", entry.path.startsWith("standalone."));
+                items.add(item);
+            }
+            groupData.put("items", items);
+            groups.add(groupData);
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("groups", groups);
         return result;
     }
 

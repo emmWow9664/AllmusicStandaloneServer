@@ -119,7 +119,6 @@ public class ClientSession {
                     name = playerName;
                     SideStandalone.INSTANCE.register(this);
                     LogStandalone.INSTANCE.append("<light_purple>[AllMusic]<yellow>玩家加入：" + name);
-                    Main.getFrame().ifPresent(frame -> frame.onPlayerJoin(name));
                     // 玩家加入后，如果正在播放，立即同步当前状态
                     AllMusic.joinPlay(name);
                     break;
@@ -256,7 +255,6 @@ public class ClientSession {
             PlayMusic.removeNowPlayPlayer(playerName);
             MusicSearch.removeSearch(playerName);
             LogStandalone.INSTANCE.append("<light_purple>[AllMusic]<yellow>玩家离开：" + playerName);
-            Main.getFrame().ifPresent(frame -> frame.onPlayerLeave(playerName));
         }
     }
 }

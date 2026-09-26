@@ -6,7 +6,7 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 ## 功能
 
 - 完整的 AllMusic 服务端功能：点歌、切歌、搜索、歌单、投票、静音、封禁、HUD 控制等
-- 图形界面（GUI）：玩家列表、歌曲列表、日志、指令输入框、可视化配置编辑、性能监视、点歌统计
+- 桌面控制台窗口：日志实时显示 + 指令输入框；关闭窗口后驻留系统托盘，服务继续在后台运行
 - 内嵌 Web 面板：浏览器查看播放 / 队列 / 玩家（含今日连接人数）/ 统计 / 性能，管理员可登录管理
 - 无图形环境时以控制台模式运行
 - 音乐 API 热加载（`netapi` jar，如 `netapi-1.0.1-SNAPSHOT.jar`）
@@ -22,8 +22,16 @@ AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https:
 
 ## 使用
 
-**方式一（推荐）：直接双击 jar 运行** —— 无需终端，双击 `AllmusicStandaloneServer-<版本>.jar` 即可启动图形界面。
+**方式一（推荐）：直接双击 jar 运行** —— 无需终端，双击 `AllmusicStandaloneServer-<版本>.jar` 即可启动**控制台窗口**（日志 + 指令输入）。
 若双击无效，说明系统未把 `.jar` 关联到 Java，可用方式二，或右键 jar →「打开方式」选择 `javaw.exe`。
+
+窗口行为：
+
+- 关闭窗口（点右上角 ×）不会退出服务端：窗口只是隐藏，服务继续在后台运行，系统托盘常驻图标
+- 托盘图标**双击**，或右键菜单 `Open Console`，可重新打开控制台窗口
+- 托盘右键菜单还提供 `Open Web Panel`（用默认浏览器打开 Web 面板）与 `Exit`（退出服务端）
+- 需要彻底关闭时：托盘菜单 `Exit`，或在控制台窗口/终端输入 `server stop`
+- 关闭窗口后服务端仍在后台运行属于预期行为；不使用托盘时（无桌面环境）关闭窗口即退出
 
 **方式二：命令行运行**
 
@@ -61,11 +69,11 @@ server stop                           # 关闭服务端（也可直接输入 exi
 - 配置项可用「路径」或「原名」指定，例如
   `server config set standalone.port 5223`、`server config set port 5223`、
   `server config set limit.maxPlayList 5`、`server config set maxPlayList 5`；
-  可配置项与 GUI「设置」页完全一致（核心配置 → `allmusic_server/config.json`，独立服务端配置 → `standalone_config.json`）。
+  可配置项与 Web 面板「设置」页完全一致（核心配置 → `allmusic_server/config.json`，独立服务端配置 → `standalone_config.json`）。
 - `config set` 会就地校验：端口范围 1~65535、整数项必须是整数、布尔项支持 `true/false`（`on/off`、`1/0` 亦可）。
 - 输入 `help` 会同时列出服务端指令与 AllMusic 指令。
-- `server stats` 的数据与 GUI「统计」页一致（点歌历史最多保留 500 条）；页码越界会自动落到最后一页。
-- 双击运行（`javaw`）时没有标准输入，控制台指令不可用——那种情况请用图形界面；SSH 下用 `java -jar` 启动即可。
+- `server stats` 的数据与 Web 面板「统计」页一致（点歌历史最多保留 500 条）；页码越界会自动落到最后一页。
+- 双击运行（`javaw`）时标准输入不可用，但同一套指令可直接在**控制台窗口**的输入框里执行（`server ...` 与 AllMusic 指令都支持）；SSH 下用 `java -jar` 启动即可。
 
 ## 音乐 API（netapi）配置
 
@@ -101,10 +109,15 @@ server stop                           # 关闭服务端（也可直接输入 exi
 服务端自带一个零依赖的内嵌 Web 展示与管理面板，浏览器打开即可使用。
 
 - 默认地址：`http://127.0.0.1:8080/`（默认绑定 `0.0.0.0`，局域网内可用本机 IP 访问）
-- 端口、绑定地址、是否启用：在 GUI「设置 → 独立服务端」中修改，**改动需重启服务端**
-- **普通用户无需登录，只能查看**：当前播放、歌曲队列、在线玩家（含**今日连接人数**）、点歌统计、**性能监视**（CPU / 内存 / 网络，可展开查看各核心使用率）
+- 端口、绑定地址、是否启用：在 Web 面板「设置」页或控制台 `server config set standalone.webPort <端口>` 修改，**改动需重启服务端**
+- 界面：单页多视图（**仪表盘 / 性能 / 统计 / 设置 / 控制台**），半透明组件 + 明暗主题切换，壁纸按屏幕裁剪
+- **普通用户无需登录，只能查看**：仪表盘（黑胶唱片封面、进度条、当前/上一句/下一句滚动歌词、歌曲队列、历史点歌、CPU/内存/网络圆环、玩家列表）、性能页（CPU / 内存 / 网络折线图，CPU 可在「总使用率 / 各核心」间切换）、点歌统计（含**今日连接人数**）
 - **管理员**需先在「设置」页设置管理员密码（只保存 PBKDF2 加盐哈希，不保存明文），登录后可以：
-  切歌、移除队列项、封禁/解封歌曲与玩家、执行服务端指令、查看服务端日志
+  切歌、移除队列项、封禁/解封歌曲与玩家、执行服务端指令、查看服务端日志，
+  并可在设置页**直接读写全部配置项**（与控制台 `server config`、桌面控制台窗口共用一份清单，
+  标注「需重启」的项要重启服务端才生效）、**设置或清除管理员密码**（两者都会作废所有登录会话）
+- 只读接口：`/api/public/status`、`/api/public/queue`、`/api/public/players`、`/api/public/stats`、`/api/public/perf`、`/api/public/lyric`（歌词三行）
+- 管理接口（需 `Authorization: Bearer <token>`）：`/api/me`、`/api/logout`、`/api/admin/bans`、`/api/admin/logs`、`/api/admin/config`（GET 读 / POST 写）、`/api/admin/password`、`/api/admin/next`、`/api/admin/queue/delete`、`/api/admin/music/ban|unban`、`/api/admin/player/ban|unban`、`/api/admin/command`
 - 出于安全考虑，Web 面板**不允许执行 `/music stop`**（会直接关闭整个服务端）
 - 同一 IP 连续输错 5 次密码将锁定 5 分钟；登录凭证 12 小时绝对过期、闲置 30 分钟失效
 

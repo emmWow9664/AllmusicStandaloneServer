@@ -1,7 +1,6 @@
 package com.example.standalone.gui;
 
-import com.example.standalone.ClientSession;
-import com.example.standalone.ConsoleSender;
+import com.example.standalone.ConsoleInput;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -28,6 +27,9 @@ import java.util.regex.Pattern;
  * 底部提供指令输入栏。
  */
 public class ConsolePanel extends JPanel {
+    /** 日志区背景：中灰。Minecraft 配色（yellow / white / aqua 等）在白色底上几乎看不清 */
+    private static final Color BACKGROUND = new Color(0x707070);
+
     private final JTextPane output = new JTextPane();
     private final StyledDocument doc = output.getStyledDocument();
     private final JTextField input = new JTextField();
@@ -59,16 +61,20 @@ public class ConsolePanel extends JPanel {
         output.setEditable(false);
         output.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         output.setAutoscrolls(true);
+        output.setBackground(BACKGROUND);
 
         JScrollPane sp = new JScrollPane(output);
         sp.setBorder(null);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        sp.setBackground(BACKGROUND);
+        sp.getViewport().setBackground(BACKGROUND);
         add(sp, BorderLayout.CENTER);
 
         // 底部指令输入栏
         JPanel bar = new JPanel(new BorderLayout(8, 0));
         bar.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
         input.addActionListener(e -> runCommand());
+        input.setToolTipText("输入 AllMusic 指令（如 list、play 歌名），或 server help 查看服务端指令");
         JButton send = new JButton("执行");
         send.addActionListener(e -> runCommand());
         bar.add(new JLabel("指令: "), BorderLayout.WEST);
@@ -83,7 +89,8 @@ public class ConsolePanel extends JPanel {
             return;
         }
         input.setText("");
-        ClientSession.handleCommand(ConsoleSender.INSTANCE, text);
+        // 与控制台模式共用同一套指令分发：server xxx 为服务端指令，其它按 AllMusic 指令执行
+        ConsoleInput.handle(text);
     }
 
     /** 追加一行日志（日志监听回调，线程安全） */

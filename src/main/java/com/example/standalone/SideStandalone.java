@@ -44,7 +44,7 @@ public class SideStandalone extends BaseSide {
     public void register(ClientSession session) {
         clients.put(session.getName().toLowerCase(Locale.ROOT), session);
         // 记录连接事件（含"今日连接玩家"统计），无图形界面时同样生效
-        com.example.standalone.gui.StatsManager.recordPlayer(session.getName());
+        com.example.standalone.monitor.StatsManager.recordPlayer(session.getName());
     }
 
     /**
@@ -194,11 +194,7 @@ public class SideStandalone extends BaseSide {
 
     @Override
     public void updateInfo() {
-        List<String> names = new ArrayList<>();
-        for (ClientSession c : clients.values()) {
-            names.add(c.getName());
-        }
-        Main.getFrame().ifPresent(frame -> frame.updateNowPlaying());
+        // 播放状态由 Web 面板按需拉取（WebApi.status），无需推送界面
     }
 
     /**

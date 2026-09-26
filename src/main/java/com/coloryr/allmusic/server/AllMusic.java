@@ -117,9 +117,17 @@ public class AllMusic {
      * 检查配置文件完整性
      */
     public static void configCheck() {
-        if (config == null || config.check()) {
+        if (config == null) {
             config = ConfigObj.make();
-            log.data("<light_purple>[AllMusic]<red>配置文件config.json错误，已覆盖");
+            log.data("<light_purple>[AllMusic]<red>配置文件config.json缺失，已生成默认配置");
+            saveConfig();
+            return;
+        }
+        // check() 只会把「缺失的子对象」补成默认值，不会动已有字段，所以直接保存即可。
+        // 旧写法是 config = ConfigObj.make() 整体覆盖，会把用户改过的配置一并清掉（表现为
+        // 「改了配置、重启后又是默认值」），这里不再覆盖。
+        if (config.check()) {
+            log.data("<light_purple>[AllMusic]<yellow>配置文件config.json缺少部分配置项，已补齐并保存");
             saveConfig();
         }
     }

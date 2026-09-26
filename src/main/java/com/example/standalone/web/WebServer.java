@@ -21,8 +21,8 @@ import java.util.concurrent.Executors;
 public final class WebServer {
     public static final WebServer INSTANCE = new WebServer();
 
-    /** 需要预加载的静态资源 */
-    private static final String[] STATIC_FILES = {"index.html", "app.js", "style.css"};
+    /** 需要预加载的静态资源（bg.png 是面板壁纸） */
+    private static final String[] STATIC_FILES = {"index.html", "app.js", "style.css", "bg.png"};
 
     private final Map<String, byte[]> resources = new ConcurrentHashMap<>();
     private HttpServer server;

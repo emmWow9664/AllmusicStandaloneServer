@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.4"
+version = "1.5"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -33,9 +33,6 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.26.1")
     implementation("net.kyori:adventure-text-serializer-gson:$adventureVersion")
     implementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
-
-    // 现代化 GUI（明暗主题），本地 jar 依赖
-    implementation(files("libs/flatlaf-3.5.4.jar"))
 }
 
 tasks.withType<JavaCompile> {

@@ -1,7 +1,7 @@
 package com.example.standalone;
 
 import com.coloryr.allmusic.server.core.AllMusic;
-import com.example.standalone.gui.StatsManager;
+import com.example.standalone.monitor.StatsManager;
 import com.example.standalone.web.WebAuth;
 import com.example.standalone.web.WebServer;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 控制台模式下的终端指令输入。
+ * 控制台指令输入与分发。
  * <p>
  * 无图形环境时（SSH / systemd / 终端里运行 jar）读取标准输入：
  * <ul>
@@ -69,9 +69,11 @@ public final class ConsoleInput {
     }
 
     /**
-     * 处理一行终端输入（留出可见性便于测试）
+     * 处理一行输入（终端与控制台窗口共用）。
+     * <p>
+     * 留出可见性便于测试；{@code server ...} 为服务端自身指令，其它按 AllMusic 指令执行。
      */
-    static void handle(String rawLine) {
+    public static void handle(String rawLine) {
         String line = strip(rawLine);
         if (line.isEmpty()) {
             return;

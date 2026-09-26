@@ -1,5 +1,6 @@
 package com.example.standalone.web;
 
+import com.example.standalone.ConfigCatalog;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -80,6 +81,11 @@ final class WebRouter implements HttpHandler {
                     WebJson.sendJson(exchange, 200, WebApi.perf());
                 }
             }
+            case "/api/public/lyric" -> {
+                if (requireGet(exchange, method)) {
+                    WebJson.sendJson(exchange, 200, WebApi.lyric());
+                }
+            }
             case "/api/login" -> {
                 if (requirePost(exchange, method)) {
                     login(exchange);
@@ -128,6 +134,20 @@ final class WebRouter implements HttpHandler {
                 if (requireGet(exchange, method)) {
                     WebJson.sendJson(exchange, 200,
                             WebApi.logs(number(exchange, "since", 0), (int) number(exchange, "limit", 200)));
+                }
+            }
+            case "/api/admin/config" -> {
+                if ("GET".equals(method)) {
+                    WebJson.sendJson(exchange, 200, WebApi.config());
+                } else if ("POST".equals(method)) {
+                    configWrite(exchange);
+                } else {
+                    WebJson.sendError(exchange, 405, "请使用 GET 或 POST");
+                }
+            }
+            case "/api/admin/password" -> {
+                if (requirePost(exchange, method)) {
+                    setPassword(exchange);
                 }
             }
             case "/api/admin/next" -> {
@@ -208,6 +228,58 @@ final class WebRouter implements HttpHandler {
             case WebAuth.LOCKED -> WebJson.sendError(exchange, 429, "登录失败次数过多，请 5 分钟后再试");
             default -> WebJson.sendError(exchange, 401, "密码错误");
         }
+    }
+
+    /** 写入单个配置项并落盘（配置项清单与控制台 server config 指令共用 ConfigCatalog） */
+    private void configWrite(HttpExchange exchange) throws IOException {
+        ConfigBody body = WebJson.readBody(exchange, ConfigBody.class);
+        if (body == null || body.path == null || body.path.isBlank()) {
+            WebJson.sendError(exchange, 400, "参数错误：path 不能为空");
+            return;
+        }
+        ConfigCatalog.Item item = ConfigCatalog.find(body.path);
+        if (item == null) {
+            WebJson.sendError(exchange, 404, "没有这个配置项：" + body.path);
+            return;
+        }
+        String error = ConfigCatalog.write(item.path, body.value);
+        if (error != null) {
+            WebJson.sendError(exchange, 400, error);
+            return;
+        }
+        ConfigCatalog.saveAll();
+        ok(exchange, item.cn + "（" + item.path + "）已保存为 " + body.value
+                + (item.path.startsWith("standalone.") ? "，该配置需重启服务端后生效" : ""));
+    }
+
+    /**
+     * 设置或清除 Web 管理员密码
+     * <p>
+     * 两者都会作废所有登录会话（包括发起本次请求的这个），因此返回文案里明确提示需要重新登录。
+     */
+    private void setPassword(HttpExchange exchange) throws IOException {
+        WebAuth auth = server.auth();
+        if (auth == null) {
+            WebJson.sendError(exchange, 403, "Web 面板未启用");
+            return;
+        }
+        PasswordBody body = WebJson.readBody(exchange, PasswordBody.class);
+        if (body == null) {
+            WebJson.sendError(exchange, 413, "请求体过大或格式错误");
+            return;
+        }
+        String password = body.password == null ? "" : body.password.trim();
+        if (password.isEmpty()) {
+            auth.clearPassword();
+            ok(exchange, "已清除管理员密码，Web 管理功能已关闭");
+            return;
+        }
+        if (password.length() < 4) {
+            WebJson.sendError(exchange, 400, "密码至少 4 位");
+            return;
+        }
+        auth.setPassword(password.toCharArray());
+        ok(exchange, "管理员密码已更新，所有登录会话已失效，请重新登录");
     }
 
     /** 执行管理指令并返回服务端输出 */
@@ -374,5 +446,14 @@ final class WebRouter implements HttpHandler {
 
     private static final class CommandBody {
         String command;
+    }
+
+    private static final class ConfigBody {
+        String path;
+        String value;
+    }
+
+    private static final class PasswordBody {
+        String password;
     }
 }

@@ -1,9 +1,9 @@
 package com.example.standalone;
 
 import com.coloryr.allmusic.server.core.AllMusic;
-import com.example.standalone.gui.MainFrame;
-import com.example.standalone.gui.ThemeManager;
+import com.example.standalone.gui.ConsoleFrame;
 import com.example.standalone.gui.TrayManager;
+import com.example.standalone.monitor.StatsManager;
 import com.example.standalone.web.WebServer;
 
 import javax.swing.JOptionPane;
@@ -18,26 +18,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * AllMusic 独立服务端入口
  *
- * 实现 AllMusic 服务端插件的全部功能，并提供图形界面：
- *  - 玩家列表
- *  - 歌曲列表
- *  - 日志（玩家指令 + 服务端日志）
- *  - 指令输入框
- *  - 可视化配置编辑
+ * 实现 AllMusic 服务端插件的全部功能，可脱离 Minecraft 独立运行。
+ * 管理方式有两种：
+ *  - 内嵌 Web 面板（浏览器访问，提供仪表盘 / 性能 / 统计 / 设置 / 控制台）
+ *  - 桌面控制台窗口（日志 + 指令输入）：关闭窗口后驻留系统托盘，服务继续在后台运行
+ * 无图形环境（SSH / systemd）时改为读取终端指令。
  */
 public class Main {
-    private static volatile MainFrame frame;
     private static volatile StandaloneConfig standaloneConfig;
     private static volatile File baseDir;
-
-    public static Optional<MainFrame> getFrame() {
-        return Optional.ofNullable(frame);
-    }
 
     public static StandaloneConfig getStandaloneConfig() {
         return standaloneConfig;
@@ -121,10 +114,10 @@ public class Main {
         AllMusic.init(new File(getBaseDir(), AllMusic.SERVER_DIR));
         AllMusic.start();
 
-        // 恢复统计（点歌/玩家/今日连接名单）：必须放在图形界面判断之前，无图形界面时同样生效
-        com.example.standalone.gui.StatsManager.load();
-        // 启动每秒统计线程：同样放在图形界面判断之前，控制台模式与 GUI 模式都会启动（内部有防重复标志）
-        com.example.standalone.gui.StatsManager.startTicker();
+        // 恢复统计（点歌/玩家/今日连接名单）：与界面无关，任何模式下都要生效
+        StatsManager.load();
+        // 启动每秒统计线程：控制台模式与窗口模式都会启动（内部有防重复标志）
+        StatsManager.startTicker();
 
         // 启动 TCP 服务端
         try {
@@ -145,14 +138,14 @@ public class Main {
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            com.example.standalone.gui.StatsManager.save(); // 退出时保存统计
+            StatsManager.save(); // 退出时保存统计
             WebServer.INSTANCE.stop();                       // 先释放 Web 端口
             AllMusic.stop();
             MusicServer.INSTANCE.stop();
             SideStandalone.INSTANCE.shutdown();
         }));
 
-        // 图形界面
+        // 图形界面（控制台窗口）
         if (GraphicsEnvironment.isHeadless()) {
             LogStandalone.INSTANCE.append("<light_purple>[AllMusic]<red>无图形环境，仅以控制台模式运行");
             // 控制台模式：读取终端指令（server ... 为本服务端指令，其它按 AllMusic 指令执行）
@@ -160,10 +153,9 @@ public class Main {
             return;
         }
         SwingUtilities.invokeLater(() -> {
-            ThemeManager.init();
-            frame = new MainFrame();
-            frame.setVisible(true);
-            TrayManager.init(frame);
+            ConsoleFrame console = new ConsoleFrame();
+            console.setVisible(true);
+            TrayManager.init(console); // 关闭窗口后驻留托盘，托盘可重新打开控制台
         });
     }
 }
