@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-label="AllmusicStandaloneServer">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#080F16"/>
+      <stop offset="0.5" stop-color="#0C1721"/>
+      <stop offset="1" stop-color="#0A2626"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.45" r="0.62">
+      <stop offset="0" stop-color="#39C5BB" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#39C5BB" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5FE3D9"/>
+      <stop offset="1" stop-color="#25958E"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#39C5BB" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="340" fill="url(#bg)"/>
+  <rect width="1280" height="340" fill="url(#grid)"/>
+  <rect width="1280" height="340" fill="url(#glow)"/>
+
+  <!-- 右侧：黑胶唱片 + 声波，代表音乐与独立服务端 -->
+  <g transform="translate(1082,168)">
+    <circle r="150" fill="#051017"/>
+    <circle r="150" fill="none" stroke="#39C5BB" stroke-opacity="0.28" stroke-width="2"/>
+    <circle r="132" fill="none" stroke="#39C5BB" stroke-opacity="0.12" stroke-width="1"/>
+    <circle r="114" fill="none" stroke="#39C5BB" stroke-opacity="0.12" stroke-width="1"/>
+    <circle r="96" fill="none" stroke="#39C5BB" stroke-opacity="0.12" stroke-width="1"/>
+    <circle r="78" fill="none" stroke="#39C5BB" stroke-opacity="0.16" stroke-width="1"/>
+    <circle r="54" fill="#39C5BB" fill-opacity="0.9"/>
+    <circle r="54" fill="url(#shine)"/>
+    <circle r="10" fill="#08181C"/>
+    <path d="M-150 -40A150 150 0 0 1 -60 -140" fill="none" stroke="#8FF0E7" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- 声波条 -->
+  <g fill="#39C5BB" transform="translate(792,236)">
+    <rect x="0" y="-14" width="6" height="28" rx="3" fill-opacity="0.35"/>
+    <rect x="16" y="-30" width="6" height="44" rx="3" fill-opacity="0.45"/>
+    <rect x="32" y="-46" width="6" height="60" rx="3" fill-opacity="0.6"/>
+    <rect x="48" y="-24" width="6" height="38" rx="3" fill-opacity="0.4"/>
+    <rect x="64" y="-38" width="6" height="52" rx="3" fill-opacity="0.5"/>
+    <rect x="80" y="-18" width="6" height="32" rx="3" fill-opacity="0.3"/>
+  </g>
+
+  <!-- 文案 -->
+  <g font-family="'Segoe UI','Microsoft YaHei','PingFang SC','Helvetica Neue',Arial,sans-serif">
+    <rect x="72" y="88" width="6" height="84" rx="3" fill="url(#accent)"/>
+    <text x="100" y="140" font-size="48" font-weight="700" fill="#F4FBFB" letter-spacing="0.5">AllmusicStandaloneServer</text>
+    <text x="102" y="180" font-size="20" fill="#93B0B6">AllMusic 独立音乐服务器 · 脱离 Minecraft 独立运行</text>
+
+    <g font-size="16" fill="#9BF0E8">
+      <rect x="102" y="206" width="102" height="34" rx="17" fill="#39C5BB" fill-opacity="0.12" stroke="#39C5BB" stroke-opacity="0.38"/>
+      <text x="126" y="229">Java 25+</text>
+      <rect x="216" y="206" width="142" height="34" rx="17" fill="#39C5BB" fill-opacity="0.12" stroke="#39C5BB" stroke-opacity="0.38"/>
+      <text x="240" y="229">内嵌 Web 面板</text>
+      <rect x="370" y="206" width="142" height="34" rx="17" fill="#39C5BB" fill-opacity="0.12" stroke="#39C5BB" stroke-opacity="0.38"/>
+      <text x="394" y="229">控制台 + 托盘</text>
+      <rect x="524" y="206" width="96" height="34" rx="17" fill="#39C5BB" fill-opacity="0.12" stroke="#39C5BB" stroke-opacity="0.38"/>
+      <text x="548" y="229">GPL-3.0</text>
+    </g>
+    <text x="102" y="284" font-size="16" fill="#6E8A92">github.com/emmWow9664/AllmusicStandaloneServer</text>
+  </g>
+</svg>

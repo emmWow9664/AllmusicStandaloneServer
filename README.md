@@ -1,6 +1,8 @@
 *本项目由AI生成
 # AllmusicStandaloneServer
 
+![AllmusicStandaloneServer](docs/header.svg)
+
 AllMusic 独立音乐服务器（Standalone Server）：实现 [AllMusic](https://github.com/Coloryr/AllMusic) 服务端插件的全部功能，可脱离 Minecraft 独立运行，作为第三方音乐服务端供 [AllMusicConnect](https://github.com/emmWow9664/AllmusicConnect) 客户端模组连接。
 
 ## 功能
@@ -107,6 +109,10 @@ server stop                           # 关闭服务端（也可直接输入 exi
 ## 内嵌 Web 面板
 
 服务端自带一个零依赖的内嵌 Web 展示与管理面板，浏览器打开即可使用。
+
+![Web 面板效果图](docs/webui-dashboard.jpeg)
+
+> 图为 Web 面板「仪表盘」视图（深色主题）：正在播放与滚动歌词、歌曲队列、历史点歌、CPU / 内存 / 网络圆环、玩家列表。
 
 - 默认地址：`http://127.0.0.1:8080/`（默认绑定 `0.0.0.0`，局域网内可用本机 IP 访问）
 - 端口、绑定地址、是否启用：在 Web 面板「设置」页或控制台 `server config set standalone.webPort <端口>` 修改，**改动需重启服务端**
